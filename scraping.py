@@ -19,7 +19,9 @@ def scrape_all():
         "news_paragraph": news_paragraph,
         "featured_image": featured_image(browser),
         "facts": mars_facts(),
-        "last_modified": dt.datetime.now()
+        "last_modified": dt.datetime.now(),
+        "hemispheres": mars_images(browser)
+            
     }
     
     # stop webdriver and return data
@@ -93,6 +95,55 @@ def mars_facts():
     
     # convert dataframe into HTML format, add bootstrap
     return df.to_html()
+
+
+def mars_images(browser):
+    #set up splinter
+    #executable_path = {'executable_path': ChromeDriverManager().install()}
+    #browser = Browser('chrome', **executable_path, headless=True)
+    
+    #visit image webset
+    url = 'https://marshemispheres.com/'
+    browser.visit(url)
+    
+    # 2. Create a list to hold the images and titles.
+    hemisphere_image_urls = []
+
+    # 3. Write code to retrieve the image urls and titles for each hemisphere.
+    html = browser.html
+    hemi_soup = soup(html, 'html.parser')
+    hemi_box = hemi_soup.find_all('div', class_='description')
+
+    for item in hemi_box:
+
+        #create empty dictionary for results
+        hemisphere = {}
+        
+        # get title from link 
+        title = item.find('h3').text
+        
+        #visit URL to get full size images using title to match text
+        browser.click_link_by_partial_text(title)
+        html=browser.html
+        
+        # get the URL for full size images
+        img_soup = soup(html, 'html.parser')
+        img_src = img_soup.find('a',  text="Sample")['href']
+        
+        # append description and url to list
+        hemisphere = {"img_url":url+img_src, "title":title}
+        hemisphere_image_urls.append(hemisphere)
+        
+        print(title)
+        
+        #return to root URL
+        browser.back()
+    
+    #exit browser
+    browser.quit()
+    
+    return hemisphere_image_urls
+
 
 if __name__ == "__main__":
     # if running as script, print scraped data
