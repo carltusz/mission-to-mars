@@ -94,7 +94,7 @@ def mars_facts():
     df.set_index('description',inplace=True)
     
     # convert dataframe into HTML format, add bootstrap
-    return df.to_html()
+    return df.to_html(classes=["table", "table-striped"])
 
 
 def mars_images(browser):
